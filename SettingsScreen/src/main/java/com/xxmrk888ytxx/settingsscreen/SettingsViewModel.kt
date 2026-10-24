@@ -47,6 +47,7 @@ class SettingsViewModel @Inject constructor(
     val isVolumeKeyTriggerEnabled = manageVolumeKeyTriggerContract.isTriggerEnabled
     val volumeKeyAction = manageVolumeKeyTriggerContract.volumeKeyAction
     val volumeKeyCameraType = manageVolumeKeyTriggerContract.volumeKeyCameraType
+    val volumeKeyButton = manageVolumeKeyTriggerContract.volumeKeyButton
     val isVolumeKeyPermissionGranted: Boolean get() = manageVolumeKeyTriggerContract.isVolumeKeyPermissionGranted
     val isOverlayPermissionGranted: Boolean get() = manageVolumeKeyTriggerContract.isOverlayPermissionGranted
     val isAllPermissionsGranted: Boolean get() = manageVolumeKeyTriggerContract.isAllPermissionsGranted
@@ -490,6 +491,31 @@ class SettingsViewModel @Inject constructor(
     internal fun changeVolumeKeyCameraType(cameraType: com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType) {
         viewModelScope.launch(Dispatchers.Default) {
             manageVolumeKeyTriggerContract.setVolumeKeyCameraType(cameraType)
+        }
+    }
+
+    internal fun showVolumeKeyButtonSelectDialog() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentButton = manageVolumeKeyTriggerContract.volumeKeyButton.first()
+            _dialogState.update {
+                it.copy(
+                    volumeKeyButtonSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Showed(currentButton)
+                )
+            }
+        }
+    }
+
+    internal fun hideVolumeKeyButtonSelectDialog() {
+        _dialogState.update {
+            it.copy(
+                volumeKeyButtonSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Hidden
+            )
+        }
+    }
+
+    internal fun changeVolumeKeyButton(button: com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton) {
+        viewModelScope.launch(Dispatchers.Default) {
+            manageVolumeKeyTriggerContract.setVolumeKeyButton(button)
         }
     }
     //

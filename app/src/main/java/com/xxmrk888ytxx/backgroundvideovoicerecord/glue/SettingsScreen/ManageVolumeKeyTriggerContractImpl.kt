@@ -5,6 +5,7 @@ import com.xxmrk888ytxx.backgroundvideovoicerecord.domain.volumeKey.VolumeKeyAct
 import com.xxmrk888ytxx.backgroundvideovoicerecord.presentation.volumeKey.VolumeKeyTriggerService
 import com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType
 import com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction
+import com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton
 import com.xxmrk888ytxx.settingsscreen.contracts.ManageVolumeKeyTriggerContract
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -29,6 +30,8 @@ class ManageVolumeKeyTriggerContractImpl @Inject constructor(
 
     override val volumeKeyCameraType: Flow<QuickTileCameraType> = volumeKeyActionManager.currentCameraType
 
+    override val volumeKeyButton: Flow<VolumeKeyButton> = volumeKeyActionManager.currentButton
+
     override suspend fun setTriggerEnabled(enabled: Boolean) {
         volumeKeyActionManager.setTriggerEnabled(enabled)
         if (enabled && isAllPermissionsGranted) {
@@ -45,5 +48,9 @@ class ManageVolumeKeyTriggerContractImpl @Inject constructor(
 
     override suspend fun setVolumeKeyCameraType(cameraType: QuickTileCameraType) {
         volumeKeyActionManager.setCameraType(cameraType)
+    }
+
+    override suspend fun setVolumeKeyButton(button: VolumeKeyButton) {
+        volumeKeyActionManager.setButton(button)
     }
 }

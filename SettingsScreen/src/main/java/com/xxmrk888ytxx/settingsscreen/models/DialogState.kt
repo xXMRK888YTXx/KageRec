@@ -23,5 +23,6 @@ data class DialogState(
     val quickTileCameraSelectDialogState: com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileCameraSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileCameraSelectDialogState.Hidden,
     val volumeKeyActionSelectDialogState: com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyActionSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyActionSelectDialogState.Hidden,
     val volumeKeyCameraSelectDialogState: com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyCameraSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyCameraSelectDialogState.Hidden,
+    val volumeKeyButtonSelectDialogState: com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Hidden,
     val adbPermissionDialogState: com.xxmrk888ytxx.settingsscreen.models.DialogModels.AdbPermissionDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.AdbPermissionDialogState.Hidden
 )

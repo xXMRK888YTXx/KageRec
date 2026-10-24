@@ -216,6 +216,13 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
         )
     }
 
+    if (dialogState.volumeKeyButtonSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Showed) {
+        VolumeKeyButtonSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialButton = (dialogState.volumeKeyButtonSelectDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Showed).currentButton
+        )
+    }
+
     if (dialogState.volumeKeyActionSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyActionSelectDialogState.Showed) {
         VolumeKeyActionSelectDialog(
             settingsViewModel = settingsViewModel,
@@ -916,6 +923,33 @@ internal fun QuickTileCameraSelectDialog(
                 title = stringResource(type.titleRes),
                 isSelected = selectedId == type.id,
                 onClick = { selectedId = type.id }
+            )
+        }.toPersistentList()
+    )
+}
+
+@Composable
+internal fun VolumeKeyButtonSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialButton: com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton,
+) {
+    var selectedId by rememberSaveable {
+        mutableStateOf(initialButton.id)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            settingsViewModel.changeVolumeKeyButton(
+                com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton.fromId(selectedId)
+            )
+            settingsViewModel.hideVolumeKeyButtonSelectDialog()
+        },
+        onCancel = settingsViewModel::hideVolumeKeyButtonSelectDialog,
+        items = com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton.values().map { button ->
+            SelectDialogModel(
+                title = stringResource(button.titleRes),
+                isSelected = selectedId == button.id,
+                onClick = { selectedId = button.id }
             )
         }.toPersistentList()
     )

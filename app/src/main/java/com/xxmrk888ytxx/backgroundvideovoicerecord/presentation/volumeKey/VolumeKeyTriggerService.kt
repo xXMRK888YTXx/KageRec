@@ -37,6 +37,7 @@ import com.xxmrk888ytxx.coreandroid.buildNotification
 import com.xxmrk888ytxx.coreandroid.buildNotificationChannel
 import com.xxmrk888ytxx.coreandroid.models.QuickTileAction
 import com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction
+import com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton
 import com.xxmrk888ytxx.recordvideoservice.models.RecordVideoState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +77,7 @@ class VolumeKeyTriggerService : Service() {
     private var resetJob: Job? = null
     private var volumeRepeatJob: Job? = null
     private var heartbeatJob: Job? = null
+    private var selectedTriggerButton: VolumeKeyButton = VolumeKeyButton.VOLUME_UP
 
     private var _wakeLock: PowerManager.WakeLock? = null
     private var isReceiverRegistered = false
@@ -95,6 +97,13 @@ class VolumeKeyTriggerService : Service() {
         isRunning = true
         isExplicitlyStopped = false
         (application as App).appComponent.inject(this)
+
+        serviceScope.launch {
+            volumeKeyActionManager.currentButton.collect { button ->
+                selectedTriggerButton = button
+                updateForegroundNotification(button)
+            }
+        }
 
         startForegroundServiceNotification()
         registerVolumeKeyListener()
@@ -139,6 +148,27 @@ class VolumeKeyTriggerService : Service() {
         }
     }
 
+    private fun createForegroundNotification(button: VolumeKeyButton): Notification {
+        val textRes = when (button) {
+            VolumeKeyButton.VOLUME_UP -> com.xxmrk888ytxx.coreandroid.R.string.volume_trigger_notification_text_up
+            VolumeKeyButton.VOLUME_DOWN -> com.xxmrk888ytxx.coreandroid.R.string.volume_trigger_notification_text_down
+        }
+        return applicationContext.buildNotification(NOTIFICATION_CHANNEL_ID) {
+            setContentTitle(getString(com.xxmrk888ytxx.coreandroid.R.string.volume_trigger_notification_title))
+            setContentText(getString(textRes))
+            setSmallIcon(android.R.drawable.ic_lock_silent_mode_off)
+            setOngoing(true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
+            }
+        }
+    }
+
+    private fun updateForegroundNotification(button: VolumeKeyButton) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
+        notificationManager.notify(NOTIFICATION_ID, createForegroundNotification(button))
+    }
+
     private fun startForegroundServiceNotification() {
         applicationContext.buildNotificationChannel(
             id = NOTIFICATION_CHANNEL_ID,
@@ -147,15 +177,7 @@ class VolumeKeyTriggerService : Service() {
             importance = NotificationManager.IMPORTANCE_LOW
         }
 
-        val notification = applicationContext.buildNotification(NOTIFICATION_CHANNEL_ID) {
-            setContentTitle(getString(com.xxmrk888ytxx.coreandroid.R.string.volume_trigger_notification_title))
-            setContentText(getString(com.xxmrk888ytxx.coreandroid.R.string.volume_trigger_notification_text))
-            setSmallIcon(android.R.drawable.ic_lock_silent_mode_off)
-            setOngoing(true)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
-            }
-        }
+        val notification = createForegroundNotification(selectedTriggerButton)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val serviceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -270,8 +292,23 @@ class VolumeKeyTriggerService : Service() {
             return
         }
 
-        // Volume Down is strictly isolated: never triggers recording and behaves as a regular volume down button
-        if (event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+        val (triggerKeyCode, triggerDirection, otherKeyCode, otherDirection) = when (selectedTriggerButton) {
+            VolumeKeyButton.VOLUME_DOWN -> arrayOf(
+                KeyEvent.KEYCODE_VOLUME_DOWN,
+                AudioManager.ADJUST_LOWER,
+                KeyEvent.KEYCODE_VOLUME_UP,
+                AudioManager.ADJUST_RAISE
+            )
+            VolumeKeyButton.VOLUME_UP -> arrayOf(
+                KeyEvent.KEYCODE_VOLUME_UP,
+                AudioManager.ADJUST_RAISE,
+                KeyEvent.KEYCODE_VOLUME_DOWN,
+                AudioManager.ADJUST_LOWER
+            )
+        }
+
+        // Non-trigger volume button: strictly normal volume adjustment, never triggers recording
+        if (event.keyCode == otherKeyCode) {
             if (waitingForSecondPress) {
                 waitingForSecondPress = false
                 resetJob?.cancel()
@@ -284,7 +321,7 @@ class VolumeKeyTriggerService : Service() {
                         volumeRepeatJob?.cancel()
                         volumeRepeatJob = serviceScope.launch {
                             audioManager?.adjustSuggestedStreamVolume(
-                                AudioManager.ADJUST_LOWER,
+                                otherDirection,
                                 AudioManager.USE_DEFAULT_STREAM_TYPE,
                                 AudioManager.FLAG_SHOW_UI
                             )
@@ -292,7 +329,7 @@ class VolumeKeyTriggerService : Service() {
                             var count = 0
                             while (isActive && count++ < 50) {
                                 audioManager?.adjustSuggestedStreamVolume(
-                                    AudioManager.ADJUST_LOWER,
+                                    otherDirection,
                                     AudioManager.USE_DEFAULT_STREAM_TYPE,
                                     AudioManager.FLAG_SHOW_UI
                                 )
@@ -310,7 +347,7 @@ class VolumeKeyTriggerService : Service() {
             return
         }
 
-        // Only KEYCODE_VOLUME_UP reaches here
+        // Trigger button reaches here
         when (event.action) {
             KeyEvent.ACTION_DOWN -> {
                 acquireWakeLock(5000L)
@@ -324,7 +361,7 @@ class VolumeKeyTriggerService : Service() {
                 val now = SystemClock.elapsedRealtime()
 
                 if (!waitingForSecondPress) {
-                    // First hold detected: signal readiness with vibration and raise volume continuously while held
+                    // First hold detected: signal readiness with vibration and adjust volume continuously while held
                     firstPressTimeMs = now
                     waitingForSecondPress = true
                     vibrateFirstPress()
@@ -332,7 +369,7 @@ class VolumeKeyTriggerService : Service() {
                     volumeRepeatJob?.cancel()
                     volumeRepeatJob = serviceScope.launch {
                         audioManager?.adjustSuggestedStreamVolume(
-                            AudioManager.ADJUST_RAISE,
+                            triggerDirection,
                             AudioManager.USE_DEFAULT_STREAM_TYPE,
                             AudioManager.FLAG_SHOW_UI
                         )
@@ -340,13 +377,13 @@ class VolumeKeyTriggerService : Service() {
                         var count = 0
                         while (isActive && count++ < 50) {
                             audioManager?.adjustSuggestedStreamVolume(
-                                AudioManager.ADJUST_RAISE,
-                                AudioManager.USE_DEFAULT_STREAM_TYPE,
-                                AudioManager.FLAG_SHOW_UI
-                            )
-                            delay(90L)
-                        }
+                            triggerDirection,
+                            AudioManager.USE_DEFAULT_STREAM_TYPE,
+                            AudioManager.FLAG_SHOW_UI
+                        )
+                        delay(90L)
                     }
+                }
 
                     resetJob?.cancel()
                     resetJob = serviceScope.launch {
@@ -355,7 +392,7 @@ class VolumeKeyTriggerService : Service() {
                         releaseWakeLock()
                     }
                 } else {
-                    // Second hold detected within timeout window: toggle recording, do NOT raise volume
+                    // Second hold detected within timeout window: toggle recording, do NOT adjust volume
                     volumeRepeatJob?.cancel()
                     volumeRepeatJob = null
 
@@ -377,7 +414,7 @@ class VolumeKeyTriggerService : Service() {
                         volumeRepeatJob?.cancel()
                         volumeRepeatJob = serviceScope.launch {
                             audioManager?.adjustSuggestedStreamVolume(
-                                AudioManager.ADJUST_RAISE,
+                                triggerDirection,
                                 AudioManager.USE_DEFAULT_STREAM_TYPE,
                                 AudioManager.FLAG_SHOW_UI
                             )
@@ -385,7 +422,7 @@ class VolumeKeyTriggerService : Service() {
                             var count = 0
                             while (isActive && count++ < 50) {
                                 audioManager?.adjustSuggestedStreamVolume(
-                                    AudioManager.ADJUST_RAISE,
+                                    triggerDirection,
                                     AudioManager.USE_DEFAULT_STREAM_TYPE,
                                     AudioManager.FLAG_SHOW_UI
                                 )

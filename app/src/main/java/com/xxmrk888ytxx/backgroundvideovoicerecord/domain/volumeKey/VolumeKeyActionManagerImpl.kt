@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import com.xxmrk888ytxx.backgroundvideovoicerecord.di.AppScope
 import com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType
 import com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction
+import com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton
 import com.xxmrk888ytxx.preferencesstorage.PreferencesStorage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -21,6 +22,7 @@ class VolumeKeyActionManagerImpl @Inject constructor(
     private val isEnabledKey = booleanPreferencesKey("VOLUME_KEY_TRIGGER_ENABLED_KEY")
     private val actionKey = intPreferencesKey("VOLUME_KEY_ACTION_KEY")
     private val cameraTypeKey = intPreferencesKey("VOLUME_KEY_CAMERA_TYPE_KEY")
+    private val buttonKey = intPreferencesKey("VOLUME_KEY_BUTTON_KEY")
 
     override val isTriggerEnabled: Flow<Boolean> =
         preferencesStorage.getProperty(isEnabledKey, false)
@@ -45,6 +47,15 @@ class VolumeKeyActionManagerImpl @Inject constructor(
 
     override suspend fun setCameraType(cameraType: QuickTileCameraType) {
         preferencesStorage.writeProperty(cameraTypeKey, cameraType.id)
+    }
+
+    override val currentButton: Flow<VolumeKeyButton> =
+        preferencesStorage.getProperty(buttonKey, VolumeKeyButton.VOLUME_UP.id).map {
+            VolumeKeyButton.fromId(it)
+        }
+
+    override suspend fun setButton(button: VolumeKeyButton) {
+        preferencesStorage.writeProperty(buttonKey, button.id)
     }
 
     override fun isVolumeKeyPermissionGranted(): Boolean {

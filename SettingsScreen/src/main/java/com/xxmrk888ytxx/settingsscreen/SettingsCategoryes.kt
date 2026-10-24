@@ -226,6 +226,14 @@ internal fun volumeKeyTriggerParams(
     if (isEnabled) {
         list.add(
             SettingsParamType.Button(
+                text = stringResource(R.string.volume_key_trigger_button_setting),
+                icon = R.drawable.baseline_edit_notifications_24,
+                onClick = settingsViewModel::showVolumeKeyButtonSelectDialog
+            )
+        )
+
+        list.add(
+            SettingsParamType.Button(
                 text = stringResource(R.string.volume_key_trigger_action_setting),
                 icon = R.drawable.baseline_edit_notifications_24,
                 onClick = settingsViewModel::showVolumeKeyActionSelectDialog
