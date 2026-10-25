@@ -23,14 +23,14 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/KoksMen/Background_Video_Audio_Record/releases/latest">
+  <a href="https://github.com/xXMRK888YTXx/KageRec/releases/latest">
     <img src="https://img.shields.io/badge/Download%20APK-Скачать%20APK-4CAF50?style=for-the-badge&logo=android&logoColor=white" alt="Download APK" />
   </a>
-  <a href="https://github.com/KoksMen/Background_Video_Audio_Record/releases">
+  <a href="https://github.com/xXMRK888YTXx/KageRec/releases">
     <img src="https://img.shields.io/badge/GitHub-Releases-181717?style=for-the-badge&logo=github&logoColor=white" alt="Releases" />
   </a>
-  <a href="https://github.com/xXMRK888YTXx/Background_Video_Audio_Record">
-    <img src="https://img.shields.io/badge/Upstream-Repository-0969DA?style=for-the-badge&logo=git&logoColor=white" alt="Upstream Repository" />
+  <a href="https://github.com/xXMRK888YTXx/KageRec">
+    <img src="https://img.shields.io/badge/GitHub-Repository-0969DA?style=for-the-badge&logo=git&logoColor=white" alt="GitHub Repository" />
   </a>
 </p>
 
@@ -161,7 +161,7 @@ The application captures high-definition video even when the screen is locked/tu
 - **Target Version:** Android 15 / 16 (API Level 36)
 - **Hardware Requirements:** Camera & microphone. Dual Video recording requires device `FEATURE_CAMERA_CONCURRENT` support.
 
-[**⬇️ Download Official APK (GitHub Releases)**](https://github.com/KoksMen/Background_Video_Audio_Record/releases/latest)
+[**⬇️ Download Official APK (GitHub Releases)**](https://github.com/xXMRK888YTXx/KageRec/releases/latest)
 
 ---
 
@@ -275,7 +275,7 @@ The application captures high-definition video even when the screen is locked/tu
 - **Целевая версия:** Android 15 / 16 (API Level 36)
 - **Аппаратные требования:** Камера и микрофон. Для режима Dual Video требуется поддержка `FEATURE_CAMERA_CONCURRENT`.
 
-[**⬇️ Скачать официальный APK (Релизы GitHub)**](https://github.com/KoksMen/Background_Video_Audio_Record/releases/latest)
+[**⬇️ Скачать официальный APK (Релизы GitHub)**](https://github.com/xXMRK888YTXx/KageRec/releases/latest)
 
 ---
 
