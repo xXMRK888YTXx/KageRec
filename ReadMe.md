@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Kotlin-2.2-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin 2.2" />
-  <img src="https://img.shields.io/badge/Compose-Material%203%20Expressive-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Compose Material 3 Expressive" />
+  <img src="https://img.shields.io/badge/Compose-Material%203-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Compose Material 3" />
   <img src="https://img.shields.io/badge/Platform-Android%208.0%2B%20(API%2026%E2%80%9336)-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 8.0+" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-orange?style=for-the-badge" alt="License GPL-3.0" /></a>
 </p>
@@ -122,7 +122,7 @@ The application captures high-definition video even when the screen is locked/tu
 | Category | Technologies |
 | :--- | :--- |
 | **Language** | Kotlin 2.2 (KSP 2.2, Coroutines 1.10, Flows, Channels) |
-| **UI Framework** | Jetpack Compose, Material 3 Expressive, Navigation Compose |
+| **UI Framework** | Jetpack Compose, Material 3, Navigation Compose |
 | **Camera & Media** | CameraX 1.5 (VideoCapture, ConcurrentCamera), MediaCodec, MediaRecorder, ExoPlayer 1.8 |
 | **Architecture** | Multi-Module Clean Architecture, MVVM + MVI-like StateFlows |
 | **Dependency Injection** | Dagger 2 |
@@ -236,7 +236,7 @@ The application captures high-definition video even when the screen is locked/tu
 | Категория | Технологии |
 | :--- | :--- |
 | **Язык разработки** | Kotlin 2.2 (KSP 2.2, Coroutines 1.10, Flows, Channels) |
-| **Пользовательский интерфейс** | Jetpack Compose, Material 3 Expressive, Navigation Compose |
+| **Пользовательский интерфейс** | Jetpack Compose, Material 3, Navigation Compose |
 | **Камера и медиа** | CameraX 1.5 (VideoCapture, ConcurrentCamera), MediaCodec, MediaRecorder, ExoPlayer 1.8 |
 | **Архитектура** | Multi-Module Clean Architecture, MVVM + MVI-like StateFlows |
 | **Внедрение зависимостей** | Dagger 2 |
