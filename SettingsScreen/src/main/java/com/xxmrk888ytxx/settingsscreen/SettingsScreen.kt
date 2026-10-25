@@ -51,7 +51,26 @@ import com.xxmrk888ytxx.corecompose.themeTypography
 import com.xxmrk888ytxx.settingsscreen.models.DialogModels.CameraMaxQualitySelectDialogState
 import com.xxmrk888ytxx.settingsscreen.models.DialogModels.CameraRotationSelectDialogState
 import com.xxmrk888ytxx.settingsscreen.models.DialogModels.CameraTypeSelectDialogState
+import androidx.compose.foundation.lazy.LazyRow
+import com.xxmrk888ytxx.coreandroid.models.NotificationIconType
+import com.xxmrk888ytxx.coreandroid.models.DualCameraPrimary
+import com.xxmrk888ytxx.coreandroid.models.PipPosition
+import kotlinx.collections.immutable.toPersistentList
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import com.xxmrk888ytxx.settingsscreen.models.DialogModels.NotificationConfigurationDialogState
+import com.xxmrk888ytxx.settingsscreen.models.DialogModels.DualCameraPrimarySelectDialogState
+import com.xxmrk888ytxx.settingsscreen.models.DialogModels.PipPositionSelectDialogState
 import com.xxmrk888ytxx.settingsscreen.models.NotificationConfigType
 import com.xxmrk888ytxx.settingsscreen.models.configs.CameraMaxQuality
 import com.xxmrk888ytxx.settingsscreen.models.configs.CameraRotation
@@ -94,8 +113,22 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
 
             item {
                 SettingsCategory(
+                    categoryName = stringResource(R.string.volume_key_trigger_category),
+                    settingsParams = volumeKeyTriggerParams(settingsViewModel)
+                )
+            }
+
+            item {
+                SettingsCategory(
                     categoryName = stringResource(R.string.export_settings),
                     settingsParams = autoExportToExternalStorageParams(settingsViewModel, navigator)
+                )
+            }
+
+            item {
+                SettingsCategory(
+                    categoryName = stringResource(R.string.security),
+                    settingsParams = securityParams(settingsViewModel)
                 )
             }
 
@@ -132,10 +165,81 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
         )
     }
 
+    if (dialogState.dualCameraPrimarySelectDialogState is DualCameraPrimarySelectDialogState.Showed) {
+        DualCameraPrimarySelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialPrimary = (dialogState.dualCameraPrimarySelectDialogState as DualCameraPrimarySelectDialogState.Showed).currentSetup
+        )
+    }
+
+    if (dialogState.pipPositionSelectDialogState is PipPositionSelectDialogState.Showed) {
+        PipPositionSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialPosition = (dialogState.pipPositionSelectDialogState as PipPositionSelectDialogState.Showed).currentSetup
+        )
+    }
+
     if (dialogState.notificationConfigurationDialog is NotificationConfigurationDialogState.Showed) {
         NotificationConfigurationDialog(
             initialState = (dialogState.notificationConfigurationDialog as NotificationConfigurationDialogState.Showed).initialState,
             settingsViewModel = settingsViewModel
+        )
+    }
+
+    if (dialogState.videoSplitLimitSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.VideoSplitLimitSelectDialogState.Showed) {
+        VideoSplitLimitSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialLimit = (dialogState.videoSplitLimitSelectDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.VideoSplitLimitSelectDialogState.Showed).currentLimit
+        )
+    }
+
+    if (dialogState.setPinDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.SetPinDialogState.Showed) {
+        val isChangeMode = (dialogState.setPinDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.SetPinDialogState.Showed).isChangeMode
+        SetPinDialog(
+            isChangeMode = isChangeMode,
+            onConfirm = { pin -> settingsViewModel.onPinCodeConfirmed(pin) },
+            onDismiss = settingsViewModel::hideSetPinDialog
+        )
+    }
+
+    if (dialogState.quickTileActionSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileActionSelectDialogState.Showed) {
+        QuickTileActionSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialAction = (dialogState.quickTileActionSelectDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileActionSelectDialogState.Showed).currentAction
+        )
+    }
+
+    if (dialogState.quickTileCameraSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileCameraSelectDialogState.Showed) {
+        QuickTileCameraSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialCameraType = (dialogState.quickTileCameraSelectDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileCameraSelectDialogState.Showed).currentCameraType
+        )
+    }
+
+    if (dialogState.volumeKeyButtonSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Showed) {
+        VolumeKeyButtonSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialButton = (dialogState.volumeKeyButtonSelectDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Showed).currentButton
+        )
+    }
+
+    if (dialogState.volumeKeyActionSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyActionSelectDialogState.Showed) {
+        VolumeKeyActionSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialAction = (dialogState.volumeKeyActionSelectDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyActionSelectDialogState.Showed).currentAction
+        )
+    }
+
+    if (dialogState.volumeKeyCameraSelectDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyCameraSelectDialogState.Showed) {
+        VolumeKeyCameraSelectDialog(
+            settingsViewModel = settingsViewModel,
+            initialCameraType = (dialogState.volumeKeyCameraSelectDialogState as com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyCameraSelectDialogState.Showed).currentCameraType
+        )
+    }
+
+    if (dialogState.adbPermissionDialogState is com.xxmrk888ytxx.settingsscreen.models.DialogModels.AdbPermissionDialogState.Showed) {
+        AdbPermissionDialog(
+            onDismiss = settingsViewModel::hideAdbPermissionDialog
         )
     }
 }
@@ -258,6 +362,11 @@ internal fun CameraTypeSelectDialog(
                 title = stringResource(R.string.Back_camera),
                 isSelected = currentSelectedCameraType == CameraType.Back.id,
                 onClick = { currentSelectedCameraType = CameraType.Back.id }
+            ),
+            SelectDialogModel(
+                title = stringResource(R.string.Both_cameras),
+                isSelected = currentSelectedCameraType == CameraType.Both.id,
+                onClick = { currentSelectedCameraType = CameraType.Both.id }
             )
         )
     )
@@ -396,56 +505,78 @@ internal fun NotificationConfigurationDialog(
             ) {
 
                 LazyColumn(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
+                        .padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(supportedNotificationTypes) {
+                        val isSelected = it.isSelected
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.clickable(onClick = it.onClick)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) themeColors.primaryColor.copy(alpha = 0.15f) else Color.Transparent)
+                                .border(
+                                    1.dp,
+                                    if (isSelected) themeColors.primaryColor.copy(alpha = 0.5f) else Color(0xFF263346),
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .clickable(onClick = it.onClick)
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
                         ) {
                             RadioButton(
-                                selected = it.isSelected,
+                                selected = isSelected,
                                 onClick = it.onClick,
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = themeColors.primaryColor,
-                                    unselectedColor = themeColors.primaryFontColor
+                                    unselectedColor = themeColors.secondFontColor
                                 )
                             )
 
                             Text(
                                 text = it.text,
-                                color = themeColors.primaryFontColor,
-                                style = themeTypography.body
+                                color = if (isSelected) Color.White else themeColors.primaryFontColor,
+                                style = themeTypography.body.copy(
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                                )
                             )
-
                         }
                     }
 
                     items(additionalNotificationParametersList) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (it.isSelect) themeColors.primaryColor.copy(alpha = 0.12f) else Color.Transparent)
+                                .border(
+                                    1.dp,
+                                    if (it.isSelect) themeColors.primaryColor.copy(alpha = 0.4f) else Color(0xFF263346),
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .clickable { it.onClick(!it.isSelect) }
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
                             Checkbox(
                                 checked = it.isSelect,
                                 onCheckedChange = it.onClick,
                                 colors = CheckboxDefaults.colors(
                                     checkedColor = themeColors.primaryColor,
-                                    uncheckedColor = themeColors.primaryColor
+                                    uncheckedColor = themeColors.secondFontColor
                                 )
                             )
 
+                            Spacer(modifier = Modifier.width(6.dp))
+
                             Text(
                                 text = it.text,
-                                color = themeColors.primaryFontColor,
+                                color = if (it.isSelect) Color.White else themeColors.primaryFontColor,
                                 style = themeTypography.body,
-                                modifier = Modifier
-                                    .horizontalScroll(rememberScrollState())
-                                    .clickable {
-                                        it.onClick(!it.isSelect)
-                                    }
+                                modifier = Modifier.horizontalScroll(rememberScrollState())
                             )
                         }
                     }
@@ -520,6 +651,105 @@ internal fun NotificationConfigurationDialog(
                                     color = themeColors.primaryFontColor
                                 )
                             )
+
+                            val currentIconId = currentState.iconId
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Text(
+                                text = stringResource(R.string.notification_icon_masking),
+                                style = themeTypography.head.copy(fontSize = 14.sp),
+                                color = themeColors.primaryFontColor,
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            LazyRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(NotificationIconType.values().toList()) { iconType ->
+                                    val isSelected = iconType.id == currentIconId
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(if (isSelected) themeColors.primaryColor else Color(0xFF1E293B))
+                                            .border(
+                                                1.dp,
+                                                if (isSelected) themeColors.primaryColor else Color(0xFF334155),
+                                                RoundedCornerShape(12.dp)
+                                            )
+                                            .clickable {
+                                                currentState = when (val s = currentState) {
+                                                    is NotificationConfigType.CustomNotification -> s.copy(iconId = iconType.id)
+                                                    is NotificationConfigType.ViewRecordStateType -> s.copy(iconId = iconType.id)
+                                                }
+                                            }
+                                            .padding(horizontal = 10.dp, vertical = 7.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(text = iconType.emoji, fontSize = 15.sp)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(
+                                                text = stringResource(iconType.titleRes),
+                                                color = if (isSelected) Color.White else Color(0xFFCBD5E1),
+                                                fontSize = 12.sp,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Live Status Bar Notification Preview Card
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xFF0F172A))
+                                    .border(1.dp, Color(0xFF334155), RoundedCornerShape(16.dp))
+                                    .padding(12.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    val selectedIconType = NotificationIconType.fromId(currentIconId)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFF1E293B)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        androidx.compose.material3.Icon(
+                                            painter = painterResource(id = selectedIconType.iconRes),
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        val previewTitle = when (val s = currentState) {
+                                            is NotificationConfigType.CustomNotification -> s.title.ifEmpty { stringResource(R.string.notice_header_preview) }
+                                            is NotificationConfigType.ViewRecordStateType -> stringResource(R.string.background_recording_preview)
+                                        }
+                                        val previewText = when (val s = currentState) {
+                                            is NotificationConfigType.CustomNotification -> s.text.ifEmpty { stringResource(R.string.masking_text_preview) }
+                                            is NotificationConfigType.ViewRecordStateType -> stringResource(R.string.recording_in_progress_preview)
+                                        }
+                                        Text(
+                                            text = previewTitle,
+                                            color = Color.White,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = previewText,
+                                            color = Color(0xFF94A3B8),
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -536,3 +766,559 @@ internal fun NotificationConfigurationDialog(
         }
     }
 }
+
+@Composable
+internal fun DualCameraPrimarySelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialPrimary: DualCameraPrimary,
+) {
+    var selected by rememberSaveable {
+        mutableStateOf(initialPrimary.name)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            val primary = try {
+                DualCameraPrimary.valueOf(selected)
+            } catch (e: Exception) {
+                DualCameraPrimary.BACK
+            }
+            settingsViewModel.changeDualCameraPrimary(primary)
+            settingsViewModel.hideDualCameraPrimarySelectDialogState()
+        },
+        onCancel = settingsViewModel::hideDualCameraPrimarySelectDialogState,
+        items = persistentListOf(
+            SelectDialogModel(
+                title = stringResource(R.string.Back_camera),
+                isSelected = selected == DualCameraPrimary.BACK.name,
+                onClick = { selected = DualCameraPrimary.BACK.name }
+            ),
+            SelectDialogModel(
+                title = stringResource(R.string.Front_camera),
+                isSelected = selected == DualCameraPrimary.FRONT.name,
+                onClick = { selected = DualCameraPrimary.FRONT.name }
+            )
+        )
+    )
+}
+
+@Composable
+internal fun PipPositionSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialPosition: PipPosition,
+) {
+    var selected by rememberSaveable {
+        mutableStateOf(initialPosition.name)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            val position = try {
+                PipPosition.valueOf(selected)
+            } catch (e: Exception) {
+                PipPosition.TOP_RIGHT
+            }
+            settingsViewModel.changePipPosition(position)
+            settingsViewModel.hidePipPositionSelectDialogState()
+        },
+        onCancel = settingsViewModel::hidePipPositionSelectDialogState,
+        items = persistentListOf(
+            SelectDialogModel(
+                title = stringResource(R.string.pip_top_right),
+                isSelected = selected == PipPosition.TOP_RIGHT.name,
+                onClick = { selected = PipPosition.TOP_RIGHT.name }
+            ),
+            SelectDialogModel(
+                title = stringResource(R.string.pip_top_left),
+                isSelected = selected == PipPosition.TOP_LEFT.name,
+                onClick = { selected = PipPosition.TOP_LEFT.name }
+            ),
+            SelectDialogModel(
+                title = stringResource(R.string.pip_bottom_right),
+                isSelected = selected == PipPosition.BOTTOM_RIGHT.name,
+                onClick = { selected = PipPosition.BOTTOM_RIGHT.name }
+            ),
+            SelectDialogModel(
+                title = stringResource(R.string.pip_bottom_left),
+                isSelected = selected == PipPosition.BOTTOM_LEFT.name,
+                onClick = { selected = PipPosition.BOTTOM_LEFT.name }
+            )
+        )
+    )
+}
+
+@Composable
+internal fun VideoSplitLimitSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialLimit: com.xxmrk888ytxx.coreandroid.models.VideoSplitLimit,
+) {
+    var selectedId by rememberSaveable {
+        mutableStateOf(initialLimit.id)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            settingsViewModel.changeVideoSplitLimit(
+                com.xxmrk888ytxx.coreandroid.models.VideoSplitLimit.fromId(selectedId)
+            )
+            settingsViewModel.hideVideoSplitLimitSelectDialog()
+        },
+        onCancel = settingsViewModel::hideVideoSplitLimitSelectDialog,
+        items = com.xxmrk888ytxx.coreandroid.models.VideoSplitLimit.values().map { limit ->
+            SelectDialogModel(
+                title = stringResource(limit.titleRes),
+                isSelected = selectedId == limit.id,
+                onClick = { selectedId = limit.id }
+            )
+        }.toPersistentList()
+    )
+}
+
+@Composable
+internal fun QuickTileActionSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialAction: com.xxmrk888ytxx.coreandroid.models.QuickTileAction,
+) {
+    var selectedId by rememberSaveable {
+        mutableStateOf(initialAction.id)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            settingsViewModel.changeQuickTileAction(
+                com.xxmrk888ytxx.coreandroid.models.QuickTileAction.fromId(selectedId)
+            )
+            settingsViewModel.hideQuickTileActionSelectDialog()
+        },
+        onCancel = settingsViewModel::hideQuickTileActionSelectDialog,
+        items = com.xxmrk888ytxx.coreandroid.models.QuickTileAction.values().map { action ->
+            SelectDialogModel(
+                title = stringResource(action.titleRes),
+                isSelected = selectedId == action.id,
+                onClick = { selectedId = action.id }
+            )
+        }.toPersistentList()
+    )
+}
+
+@Composable
+internal fun QuickTileCameraSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialCameraType: com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType,
+) {
+    var selectedId by rememberSaveable {
+        mutableStateOf(initialCameraType.id)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            settingsViewModel.changeQuickTileCameraType(
+                com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType.fromId(selectedId)
+            )
+            settingsViewModel.hideQuickTileCameraSelectDialog()
+        },
+        onCancel = settingsViewModel::hideQuickTileCameraSelectDialog,
+        items = com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType.values().map { type ->
+            SelectDialogModel(
+                title = stringResource(type.titleRes),
+                isSelected = selectedId == type.id,
+                onClick = { selectedId = type.id }
+            )
+        }.toPersistentList()
+    )
+}
+
+@Composable
+internal fun VolumeKeyButtonSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialButton: com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton,
+) {
+    var selectedId by rememberSaveable {
+        mutableStateOf(initialButton.id)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            settingsViewModel.changeVolumeKeyButton(
+                com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton.fromId(selectedId)
+            )
+            settingsViewModel.hideVolumeKeyButtonSelectDialog()
+        },
+        onCancel = settingsViewModel::hideVolumeKeyButtonSelectDialog,
+        items = com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton.values().map { button ->
+            SelectDialogModel(
+                title = stringResource(button.titleRes),
+                isSelected = selectedId == button.id,
+                onClick = { selectedId = button.id }
+            )
+        }.toPersistentList()
+    )
+}
+
+@Composable
+internal fun VolumeKeyActionSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialAction: com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction,
+) {
+    var selectedId by rememberSaveable {
+        mutableStateOf(initialAction.id)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            settingsViewModel.changeVolumeKeyAction(
+                com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction.fromId(selectedId)
+            )
+            settingsViewModel.hideVolumeKeyActionSelectDialog()
+        },
+        onCancel = settingsViewModel::hideVolumeKeyActionSelectDialog,
+        items = com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction.values().map { action ->
+            SelectDialogModel(
+                title = stringResource(action.titleRes),
+                isSelected = selectedId == action.id,
+                onClick = { selectedId = action.id }
+            )
+        }.toPersistentList()
+    )
+}
+
+@Composable
+internal fun VolumeKeyCameraSelectDialog(
+    settingsViewModel: SettingsViewModel,
+    initialCameraType: com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType,
+) {
+    var selectedId by rememberSaveable {
+        mutableStateOf(initialCameraType.id)
+    }
+
+    SelectDialog(
+        onConfirm = {
+            settingsViewModel.changeVolumeKeyCameraType(
+                com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType.fromId(selectedId)
+            )
+            settingsViewModel.hideVolumeKeyCameraSelectDialog()
+        },
+        onCancel = settingsViewModel::hideVolumeKeyCameraSelectDialog,
+        items = com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType.values().map { type ->
+            SelectDialogModel(
+                title = stringResource(type.titleRes),
+                isSelected = selectedId == type.id,
+                onClick = { selectedId = type.id }
+            )
+        }.toPersistentList()
+    )
+}
+
+@Composable
+internal fun AdbPermissionDialog(
+    onDismiss: () -> Unit
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val adbCommand = "adb shell pm grant ${context.packageName} android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER"
+
+    val isVolumeKeyGranted = context.checkSelfPermission("android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER") ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+    val isOverlayGranted = android.provider.Settings.canDrawOverlays(context)
+
+    Dialog(onDismissRequest = onDismiss) {
+        StyleCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.volume_key_permission_dialog_title),
+                        style = themeTypography.body,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.White
+                    )
+
+                    // How it works section
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.volume_key_how_it_works_title),
+                            style = themeTypography.body,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 15.sp,
+                            color = themeColors.primaryColor
+                        )
+
+                        Text(
+                            text = stringResource(R.string.volume_key_how_it_works_desc),
+                            style = themeTypography.body,
+                            fontSize = 13.sp,
+                            color = Color(0xFFCBD5E1)
+                        )
+                    }
+
+                    // Step 1: ADB Volume Key Listener
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.volume_key_adb_step_title),
+                            style = themeTypography.body,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+
+                    if (isVolumeKeyGranted) {
+                        Text(
+                            text = stringResource(R.string.volume_key_adb_step_granted),
+                            style = themeTypography.body,
+                            fontSize = 13.sp,
+                            color = Color(0xFF4ADE80)
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.volume_key_adb_step_desc, adbCommand),
+                            style = themeTypography.body,
+                            fontSize = 13.sp,
+                            color = Color(0xFFCBD5E1)
+                        )
+
+                        androidx.compose.material3.Button(
+                            onClick = {
+                                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                                val clip = android.content.ClipData.newPlainText("ADB Command", adbCommand)
+                                clipboard?.setPrimaryClip(clip)
+                                android.widget.Toast.makeText(context, context.getString(R.string.adb_command_copied), android.widget.Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.copy_adb_command),
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+
+                // Step 2: Overlay Permission (can be granted directly in settings without ADB)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.volume_key_overlay_step_title),
+                        style = themeTypography.body,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = Color.White
+                    )
+
+                    if (isOverlayGranted) {
+                        Text(
+                            text = stringResource(R.string.volume_key_overlay_step_granted),
+                            style = themeTypography.body,
+                            fontSize = 13.sp,
+                            color = Color(0xFF4ADE80)
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.volume_key_overlay_step_desc),
+                            style = themeTypography.body,
+                            fontSize = 13.sp,
+                            color = Color(0xFFCBD5E1)
+                        )
+
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = {
+                                try {
+                                    val intent = android.content.Intent(
+                                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                        android.net.Uri.parse("package:${context.packageName}")
+                                    ).apply {
+                                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(R.string.open_settings),
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    androidx.compose.material3.TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.cancel), color = Color(0xFF94A3B8))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SetPinDialog(
+    isChangeMode: Boolean,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var pin by rememberSaveable { mutableStateOf("") }
+    var confirmPin by rememberSaveable { mutableStateOf("") }
+    var step by rememberSaveable { mutableStateOf(1) }
+    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    val mismatchError = stringResource(R.string.pins_do_not_match)
+
+    Dialog(onDismissRequest = onDismiss) {
+        StyleCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = if (isChangeMode) stringResource(R.string.change_pin_title) else stringResource(R.string.set_pin_title),
+                    style = themeTypography.body,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+
+                Text(
+                    text = if (step == 1) stringResource(R.string.create_pin_hint) else stringResource(R.string.repeat_pin_hint),
+                    style = themeTypography.body,
+                    fontSize = 14.sp,
+                    color = Color(0xFF94A3B8)
+                )
+
+                val currentDigits = if (step == 1) pin else confirmPin
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                ) {
+                    repeat(4) { index ->
+                        val isFilled = index < currentDigits.length
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(if (isFilled) Color(0xFF818CF8) else Color.Transparent)
+                                .border(2.dp, if (isFilled) Color(0xFF818CF8) else Color(0xFF475569), CircleShape)
+                        )
+                    }
+                }
+
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage ?: "",
+                        color = Color(0xFFEF4444),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val rows = listOf(
+                        listOf("1", "2", "3"),
+                        listOf("4", "5", "6"),
+                        listOf("7", "8", "9"),
+                        listOf("", "0", "⌫")
+                    )
+
+                    for (row in rows) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            for (item in row) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(60.dp)
+                                        .clip(CircleShape)
+                                        .background(if (item.isNotEmpty()) Color(0xFF1E293B) else Color.Transparent)
+                                        .clickable(enabled = item.isNotEmpty()) {
+                                            errorMessage = null
+                                            if (item == "⌫") {
+                                                if (step == 1 && pin.isNotEmpty()) pin = pin.dropLast(1)
+                                                else if (step == 2 && confirmPin.isNotEmpty()) confirmPin = confirmPin.dropLast(1)
+                                            } else {
+                                                if (step == 1) {
+                                                    if (pin.length < 4) {
+                                                        pin += item
+                                                        if (pin.length == 4) {
+                                                            step = 2
+                                                        }
+                                                    }
+                                                } else {
+                                                    if (confirmPin.length < 4) {
+                                                        confirmPin += item
+                                                        if (confirmPin.length == 4) {
+                                                            if (pin == confirmPin) {
+                                                                onConfirm(pin)
+                                                            } else {
+                                                                errorMessage = mismatchError
+                                                                confirmPin = ""
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (item.isNotEmpty()) {
+                                        Text(
+                                            text = item,
+                                            color = Color.White,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    androidx.compose.material3.TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.cancel), color = Color(0xFF94A3B8))
+                    }
+                }
+            }
+        }
+    }
+}
+
+

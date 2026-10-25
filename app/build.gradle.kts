@@ -18,8 +18,8 @@ android {
         applicationId = libs.versions.packageName.get()
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.compileSdk.get().toInt()
-        versionCode = 7
-        versionName = "1.1.0r"
+        versionCode = 16
+        versionName = "Faradey.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -88,7 +88,9 @@ dependencies {
 
     //Compose
     implementation(libs.compose.navigation)
-    implementation(libs.compose.system.ui.controller)
+    implementation(libs.androidx.fragment)
+    implementation(libs.androidx.lifecycle)
+    implementation(libs.coroutines.android)
 
     //Serialization
     implementation(libs.kotlin.serialization.json)

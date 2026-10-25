@@ -41,7 +41,13 @@ class AllRecordAutoExportWorkerWorkImpl @Inject constructor(
 
     private suspend fun exportVideo(externalStorageRepository: ExternalStorageRepository) {
         val videoRecordFilesHashInInternalStorage = videoRecordRepository.fileList.first()
-            .mapNotNull { videoRecordRepository.getFileById(it.id)?.toMD5HashAndFilePair() }
+            .flatMap { model ->
+                listOfNotNull(
+                    videoRecordRepository.getFileById(model.id),
+                    videoRecordRepository.getSecondaryFileById(model.id)
+                )
+            }
+            .mapNotNull { it.toMD5HashAndFilePair() }
             .toMap()
         val videoRecordFilesHashInExternalStorage =
             externalStorageRepository.videoFolder.listFiles()
@@ -96,14 +102,23 @@ class AllRecordAutoExportWorkerWorkImpl @Inject constructor(
     private suspend fun File.toMD5Hash(): MD5Hash {
         val md5Digest = MessageDigest.getInstance("MD5")
         val fileBytes = inputStream().buffered().use { it.readFileForGetHash() }
-        return md5Digest.digest(fileBytes).toHexString()
+        return "${length()}_" + md5Digest.digest(fileBytes).toHexString()
     }
 
-    private suspend fun DocumentFile.toMD5Hash(externalStorageRepository: ExternalStorageRepository): MD5Hash {
-        val md5Digest = MessageDigest.getInstance("MD5")
-        val fileBytes = externalStorageRepository.openInputStream(this).getOrThrow().buffered()
-            .use { it.readFileForGetHash() }
-        return md5Digest.digest(fileBytes).toHexString()
+    private suspend fun DocumentFile.toMD5Hash(externalStorageRepository: ExternalStorageRepository): MD5Hash? {
+        val fileLength = length()
+        if (fileLength == 0L) {
+            try { delete() } catch (_: Exception) {}
+            return null
+        }
+        return try {
+            val md5Digest = MessageDigest.getInstance("MD5")
+            val fileBytes = externalStorageRepository.openInputStream(this).getOrThrow().buffered()
+                .use { it.readFileForGetHash() }
+            "${fileLength}_" + md5Digest.digest(fileBytes).toHexString()
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun InputStream.readFileForGetHash(): ByteArray {

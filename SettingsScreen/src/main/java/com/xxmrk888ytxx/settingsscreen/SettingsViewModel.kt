@@ -13,6 +13,10 @@ import com.xxmrk888ytxx.settingsscreen.models.DialogModels.CameraRotationSelectD
 import com.xxmrk888ytxx.settingsscreen.models.DialogModels.CameraTypeSelectDialogState
 import com.xxmrk888ytxx.settingsscreen.models.DialogModels.NotificationConfigurationDialogState
 import com.xxmrk888ytxx.settingsscreen.models.DialogState
+import com.xxmrk888ytxx.coreandroid.models.DualCameraPrimary
+import com.xxmrk888ytxx.coreandroid.models.PipPosition
+import com.xxmrk888ytxx.settingsscreen.models.DialogModels.DualCameraPrimarySelectDialogState
+import com.xxmrk888ytxx.settingsscreen.models.DialogModels.PipPositionSelectDialogState
 import com.xxmrk888ytxx.settingsscreen.models.NotificationConfigType
 import com.xxmrk888ytxx.settingsscreen.models.configs.CameraMaxQuality
 import com.xxmrk888ytxx.settingsscreen.models.configs.CameraRotation
@@ -23,6 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.xxmrk888ytxx.settingsscreen.contracts.ManageAppLockContract
 import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor(
@@ -30,8 +35,22 @@ class SettingsViewModel @Inject constructor(
     private val manageAudioNotificationConfigContract: ManageAudioNotificationConfigContract,
     private val manageVideoNotificationConfigContract: ManageVideoNotificationConfigContract,
     private val provideAppVersionContract: ProvideAppVersionContract,
-    private val openActivityContract:OpenActivityContract
+    private val openActivityContract: OpenActivityContract,
+    private val manageAppLockContract: ManageAppLockContract,
+    private val manageQuickTileContract: com.xxmrk888ytxx.settingsscreen.contracts.ManageQuickTileContract,
+    private val manageVolumeKeyTriggerContract: com.xxmrk888ytxx.settingsscreen.contracts.ManageVolumeKeyTriggerContract
 ) : ViewModel() {
+
+    val quickTileAction = manageQuickTileContract.quickTileAction
+    val quickTileCameraType = manageQuickTileContract.quickTileCameraType
+
+    val isVolumeKeyTriggerEnabled = manageVolumeKeyTriggerContract.isTriggerEnabled
+    val volumeKeyAction = manageVolumeKeyTriggerContract.volumeKeyAction
+    val volumeKeyCameraType = manageVolumeKeyTriggerContract.volumeKeyCameraType
+    val volumeKeyButton = manageVolumeKeyTriggerContract.volumeKeyButton
+    val isVolumeKeyPermissionGranted: Boolean get() = manageVolumeKeyTriggerContract.isVolumeKeyPermissionGranted
+    val isOverlayPermissionGranted: Boolean get() = manageVolumeKeyTriggerContract.isOverlayPermissionGranted
+    val isAllPermissionsGranted: Boolean get() = manageVolumeKeyTriggerContract.isAllPermissionsGranted
 
     //Open terms of use
     internal fun openTermsOfUse() {
@@ -217,4 +236,287 @@ class SettingsViewModel @Inject constructor(
     }
     //
 
+    //DualCameraPrimarySelectDialog
+    internal fun showDualCameraPrimarySelectDialogState() {
+        viewModelScope.launch {
+            _dialogState.update {
+                it.copy(
+                    dualCameraPrimarySelectDialogState = DualCameraPrimarySelectDialogState.Showed(
+                        manageCameraConfigContract.dualCameraPrimary.first()
+                    )
+                )
+            }
+        }
+    }
+
+    internal fun hideDualCameraPrimarySelectDialogState() {
+        _dialogState.update {
+            it.copy(dualCameraPrimarySelectDialogState = DualCameraPrimarySelectDialogState.Hidden)
+        }
+    }
+
+    internal fun changeDualCameraPrimary(primary: DualCameraPrimary) {
+        viewModelScope.launch(Dispatchers.IO) {
+            manageCameraConfigContract.setupDualCameraPrimary(primary)
+        }
+    }
+    //
+
+    //PipPositionSelectDialog
+    internal fun showPipPositionSelectDialogState() {
+        viewModelScope.launch {
+            _dialogState.update {
+                it.copy(
+                    pipPositionSelectDialogState = PipPositionSelectDialogState.Showed(
+                        manageCameraConfigContract.pipPosition.first()
+                    )
+                )
+            }
+        }
+    }
+
+    internal fun hidePipPositionSelectDialogState() {
+        _dialogState.update {
+            it.copy(pipPositionSelectDialogState = PipPositionSelectDialogState.Hidden)
+        }
+    }
+
+    internal fun changePipPosition(position: PipPosition) {
+        viewModelScope.launch(Dispatchers.IO) {
+            manageCameraConfigContract.setupPipPosition(position)
+        }
+    }
+    //
+
+    //VideoSplitLimitSelectDialog
+    internal val videoSplitLimit: kotlinx.coroutines.flow.Flow<com.xxmrk888ytxx.coreandroid.models.VideoSplitLimit> =
+        manageCameraConfigContract.videoSplitLimit
+
+    internal fun showVideoSplitLimitSelectDialog() {
+        viewModelScope.launch {
+            _dialogState.update {
+                it.copy(
+                    videoSplitLimitSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VideoSplitLimitSelectDialogState.Showed(
+                        manageCameraConfigContract.videoSplitLimit.first()
+                    )
+                )
+            }
+        }
+    }
+
+    internal fun hideVideoSplitLimitSelectDialog() {
+        _dialogState.update {
+            it.copy(videoSplitLimitSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VideoSplitLimitSelectDialogState.Hidden)
+        }
+    }
+
+    internal fun changeVideoSplitLimit(limit: com.xxmrk888ytxx.coreandroid.models.VideoSplitLimit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            manageCameraConfigContract.setupVideoSplitLimit(limit)
+        }
+    }
+    //
+
+    // App Lock
+    internal val isAppLockEnabled: kotlinx.coroutines.flow.Flow<Boolean> =
+        manageAppLockContract.isAppLockEnabled
+
+    internal val isBiometricEnabled: kotlinx.coroutines.flow.Flow<Boolean> =
+        manageAppLockContract.isBiometricEnabled
+
+    internal val isBiometricsSupported: Boolean
+        get() = manageAppLockContract.isBiometricsSupported
+
+    internal fun onAppLockSwitchChanged(enabled: Boolean) {
+        viewModelScope.launch {
+            if (enabled) {
+                val isPinSet = manageAppLockContract.isPinCodeSet.first()
+                if (!isPinSet) {
+                    showSetPinDialog(isChangeMode = false)
+                } else {
+                    manageAppLockContract.setAppLockEnabled(true)
+                }
+            } else {
+                manageAppLockContract.setAppLockEnabled(false)
+            }
+        }
+    }
+
+    internal fun showSetPinDialog(isChangeMode: Boolean = true) {
+        _dialogState.update {
+            it.copy(setPinDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.SetPinDialogState.Showed(isChangeMode))
+        }
+    }
+
+    internal fun hideSetPinDialog() {
+        _dialogState.update {
+            it.copy(setPinDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.SetPinDialogState.Hidden)
+        }
+    }
+
+    internal fun onPinCodeConfirmed(pin: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            manageAppLockContract.setPinCode(pin)
+            manageAppLockContract.setAppLockEnabled(true)
+            hideSetPinDialog()
+        }
+    }
+
+    internal fun onBiometricSwitchChanged(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            manageAppLockContract.setBiometricEnabled(enabled)
+        }
+    }
+
+    internal fun showQuickTileActionSelectDialog() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentAction = manageQuickTileContract.quickTileAction.first()
+            _dialogState.update {
+                it.copy(
+                    quickTileActionSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileActionSelectDialogState.Showed(currentAction)
+                )
+            }
+        }
+    }
+
+    internal fun hideQuickTileActionSelectDialog() {
+        _dialogState.update {
+            it.copy(
+                quickTileActionSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileActionSelectDialogState.Hidden
+            )
+        }
+    }
+
+    internal fun changeQuickTileAction(action: com.xxmrk888ytxx.coreandroid.models.QuickTileAction) {
+        viewModelScope.launch(Dispatchers.Default) {
+            manageQuickTileContract.setQuickTileAction(action)
+        }
+    }
+
+    internal fun showQuickTileCameraSelectDialog() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentCameraType = manageQuickTileContract.quickTileCameraType.first()
+            _dialogState.update {
+                it.copy(
+                    quickTileCameraSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileCameraSelectDialogState.Showed(currentCameraType)
+                )
+            }
+        }
+    }
+
+    internal fun hideQuickTileCameraSelectDialog() {
+        _dialogState.update {
+            it.copy(
+                quickTileCameraSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.QuickTileCameraSelectDialogState.Hidden
+            )
+        }
+    }
+
+    internal fun changeQuickTileCameraType(cameraType: com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType) {
+        viewModelScope.launch(Dispatchers.Default) {
+            manageQuickTileContract.setQuickTileCameraType(cameraType)
+        }
+    }
+
+    internal fun onVolumeKeyTriggerSwitchChanged(enabled: Boolean) {
+        viewModelScope.launch {
+            if (enabled) {
+                if (!manageVolumeKeyTriggerContract.isAllPermissionsGranted) {
+                    showAdbPermissionDialog()
+                } else {
+                    manageVolumeKeyTriggerContract.setTriggerEnabled(true)
+                }
+            } else {
+                manageVolumeKeyTriggerContract.setTriggerEnabled(false)
+            }
+        }
+    }
+
+    internal fun showAdbPermissionDialog() {
+        _dialogState.update {
+            it.copy(adbPermissionDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.AdbPermissionDialogState.Showed)
+        }
+    }
+
+    internal fun hideAdbPermissionDialog() {
+        _dialogState.update {
+            it.copy(adbPermissionDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.AdbPermissionDialogState.Hidden)
+        }
+    }
+
+    internal fun showVolumeKeyActionSelectDialog() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentAction = manageVolumeKeyTriggerContract.volumeKeyAction.first()
+            _dialogState.update {
+                it.copy(
+                    volumeKeyActionSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyActionSelectDialogState.Showed(currentAction)
+                )
+            }
+        }
+    }
+
+    internal fun hideVolumeKeyActionSelectDialog() {
+        _dialogState.update {
+            it.copy(
+                volumeKeyActionSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyActionSelectDialogState.Hidden
+            )
+        }
+    }
+
+    internal fun changeVolumeKeyAction(action: com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction) {
+        viewModelScope.launch(Dispatchers.Default) {
+            manageVolumeKeyTriggerContract.setVolumeKeyAction(action)
+        }
+    }
+
+    internal fun showVolumeKeyCameraSelectDialog() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentCamera = manageVolumeKeyTriggerContract.volumeKeyCameraType.first()
+            _dialogState.update {
+                it.copy(
+                    volumeKeyCameraSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyCameraSelectDialogState.Showed(currentCamera)
+                )
+            }
+        }
+    }
+
+    internal fun hideVolumeKeyCameraSelectDialog() {
+        _dialogState.update {
+            it.copy(
+                volumeKeyCameraSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyCameraSelectDialogState.Hidden
+            )
+        }
+    }
+
+    internal fun changeVolumeKeyCameraType(cameraType: com.xxmrk888ytxx.coreandroid.models.QuickTileCameraType) {
+        viewModelScope.launch(Dispatchers.Default) {
+            manageVolumeKeyTriggerContract.setVolumeKeyCameraType(cameraType)
+        }
+    }
+
+    internal fun showVolumeKeyButtonSelectDialog() {
+        viewModelScope.launch(Dispatchers.Default) {
+            val currentButton = manageVolumeKeyTriggerContract.volumeKeyButton.first()
+            _dialogState.update {
+                it.copy(
+                    volumeKeyButtonSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Showed(currentButton)
+                )
+            }
+        }
+    }
+
+    internal fun hideVolumeKeyButtonSelectDialog() {
+        _dialogState.update {
+            it.copy(
+                volumeKeyButtonSelectDialogState = com.xxmrk888ytxx.settingsscreen.models.DialogModels.VolumeKeyButtonSelectDialogState.Hidden
+            )
+        }
+    }
+
+    internal fun changeVolumeKeyButton(button: com.xxmrk888ytxx.coreandroid.models.VolumeKeyButton) {
+        viewModelScope.launch(Dispatchers.Default) {
+            manageVolumeKeyTriggerContract.setVolumeKeyButton(button)
+        }
+    }
+    //
 }

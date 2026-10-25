@@ -97,7 +97,7 @@ interface VideoRecorder {
      *
      * Sets the recording state [RecorderState.Destroyed]
      */
-    fun stopRecordAndDestroyRecorder()
+    suspend fun stopRecordAndDestroyRecorder()
 
     /**
      * [Ru]
@@ -197,14 +197,23 @@ interface VideoRecorder {
          *
          * По умалчанию уставновлен как [CameraRotation.ROTATION_0]
          */
-        fun setCameraRotation(cameraRotation: CameraRotation) {
+        fun setCameraRotation(cameraRotation: CameraRotation): Builder {
             this.cameraRotation = cameraRotation
+            return this
+        }
+
+        private var secondaryOutputFile: File? = null
+
+        fun setSecondaryOutputFile(secondaryOutputFile: File?): Builder {
+            this.secondaryOutputFile = secondaryOutputFile
+            return this
         }
 
         fun build(): VideoRecorder {
             return VideoRecorderImpl(
                 context,
                 outputFile,
+                secondaryOutputFile,
                 lifecycleOwner,
                 selectedScope ?: defaultScope,
                 maxQuality,

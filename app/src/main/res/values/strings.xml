@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Background video and audio recording</string>
+    <string name="app_name">KageRec</string>
     <string name="Sound_record">Audio</string>
     <string name="Record_video">Video</string>
     <string name="Settings">Settings</string>
@@ -8,7 +8,7 @@
     <string name="Choose_a_client">Choose a client</string>
     <string name="banner_key" translatable="false">ca-app-pub-6313040706847570/5762780106</string>
     <string name="ad_key">ca-app-pub-6313040706847570/9006206333</string>
-    <string name="source_code_url" translatable="false">https://github.com/xXMRK888YTXx/Background_Video_Audio_Record</string>
+    <string name="source_code_url" translatable="false">https://github.com/xXMRK888YTXx/KageRec</string>
     <string name="privacy_policy_url" translatable="false">https://xxmrk888ytxx.github.io/backgroudAudioVideoRecorder_privacy.htm</string>
     <string name="terms_of_use_url" translatable="false">https://xxmrk888ytxx.github.io/backgroudAudioVideoRecorder_terms.htm</string>
     <string name="export_worker">Export notification</string>
@@ -16,4 +16,9 @@
     <string name="do_not_close_the_app">Do not close the app</string>
     <string name="the_folder_for_export_is_unavailable">The folder for export is unavailable</string>
     <string name="specify_the_folder_to_export_again">Specify the folder to export again</string>
+    <string name="biometric_subtitle">Confirm your identity to enter</string>
+    <string name="use_pin">Use PIN</string>
+    <string name="enter_pin_code">Enter PIN code</string>
+    <string name="wrong_pin_try_again">Incorrect PIN, please try again</string>
+    <string name="to_access_app">To access the application</string>
 </resources>

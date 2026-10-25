@@ -12,4 +12,50 @@
     <string name="October">Октябрь</string>
     <string name="November">Ноябрь</string>
     <string name="December">Декабрь</string>
+
+    <!-- Notification Icons -->
+    <string name="notif_icon_camera">Камера</string>
+    <string name="notif_icon_mic">Микрофон</string>
+    <string name="notif_icon_download">Загрузка</string>
+    <string name="notif_icon_settings">Система</string>
+    <string name="notif_icon_battery">Батарея</string>
+    <string name="notif_icon_sync">Синхронизация</string>
+    <string name="notif_icon_shield">Безопасность</string>
+    <string name="notif_icon_music">Плеер</string>
+    <string name="notif_icon_cloud">Облако</string>
+    <string name="notif_icon_check">Готово</string>
+
+    <!-- Video Split Limits -->
+    <string name="split_limit_disabled">Без разделения (Один файл)</string>
+    <string name="split_limit_4gb_or_30min">4 ГБ или 30 минут (Рекомендуется)</string>
+    <string name="split_limit_15min">Каждые 15 минут</string>
+    <string name="split_limit_30min">Каждые 30 минут</string>
+    <string name="split_limit_60min">Каждые 60 минут</string>
+
+    <!-- Camera Titles -->
+    <string name="camera_back_label">Задняя камера</string>
+    <string name="camera_front_label">Передняя камера</string>
+    <string name="camera_both_label">Обе камеры (вместе)</string>
+    <string name="camera_selfie_chip">🤳 Селфи</string>
+    <string name="camera_back_chip">📷 Задняя</string>
+    <string name="quick_tile_action_open_app">Открыть приложение</string>
+    <string name="quick_tile_action_record_video">Начать запись видео</string>
+    <string name="quick_tile_action_record_audio">Начать запись звука</string>
+    <string name="quick_tile_camera_as_in_settings">Как в общих настройках</string>
+    <string name="quick_tile_camera_back">Задняя камера</string>
+    <string name="quick_tile_camera_front">Фронтальная камера</string>
+    <string name="quick_tile_camera_both">Обе камеры</string>
+    <string name="volume_key_action_record_video">Начать запись видео</string>
+    <string name="volume_key_action_record_audio">Начать запись звука</string>
+    <string name="volume_key_button_up">Увеличение громкости (+)</string>
+    <string name="volume_key_button_down">Уменьшение громкости (-)</string>
+    <string name="volume_trigger_notification_channel">Аппаратный триггер</string>
+    <string name="volume_trigger_notification_title">Триггер кнопок громкости активен</string>
+    <string name="volume_trigger_notification_text">Двойное зажатие громкости для записи</string>
+    <string name="volume_trigger_notification_text_up">Двойное зажатие громкости (+) для записи</string>
+    <string name="volume_trigger_notification_text_down">Двойное зажатие громкости (-) для записи</string>
+    <string name="camera_and_mic_required_toast">Для начала записи требуются разрешения на камеру и микрофон</string>
+    <string name="camera_required_toast">Для начала записи требуется разрешение на камеру</string>
+    <string name="mic_required_toast">Для начала записи требуется разрешение на микрофон</string>
+    <string name="another_recording_already_active_toast">Невозможно начать запись: уже идёт другая запись</string>
 </resources>

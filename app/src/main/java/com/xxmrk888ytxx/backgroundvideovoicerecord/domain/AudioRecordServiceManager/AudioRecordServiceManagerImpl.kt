@@ -45,6 +45,12 @@ class AudioRecordServiceManagerImpl @Inject constructor(
     var recordServiceController: AudioRecordServiceController? = null
 
     override fun startRecord() {
+        val hasMic = context.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (!hasMic) {
+            Log.e(LOG_TAG, "Cannot start record: missing RECORD_AUDIO permission")
+            return
+        }
+
         serviceManagedScope.launch {
             Log.i(LOG_TAG,"startRecord request")
             if(!isConnectedToService()) {
@@ -102,6 +108,8 @@ class AudioRecordServiceManagerImpl @Inject constructor(
             recordServiceController?.stopRecord()
 
             disconnectFromService()
+            _currentRecordState.update { RecordAudioState.Idle }
+            notifyTileService()
         }
     }
 
@@ -141,6 +149,7 @@ class AudioRecordServiceManagerImpl @Inject constructor(
         recordStateObserverScope.coroutineContext.cancelChildren()
 
         _currentRecordState.update { RecordAudioState.Idle }
+        notifyTileService()
     }
 
     override fun onServiceConnected(name: ComponentName?, serviceBinder: IBinder?) {
@@ -163,6 +172,8 @@ class AudioRecordServiceManagerImpl @Inject constructor(
                     ) {
                         stopRecord()
                     }
+
+                    notifyTileService()
 
                     lastRecordState = state
                 }
@@ -188,6 +199,15 @@ class AudioRecordServiceManagerImpl @Inject constructor(
                 delayedManageRequest.poll()?.invoke()
             }
         }
+    }
+
+    private fun notifyTileService() {
+        try {
+            android.service.quicksettings.TileService.requestListeningState(
+                context,
+                ComponentName(context, "com.xxmrk888ytxx.fastopenappquicksettingsservice.FastOpenAppQuickSettingsService")
+            )
+        } catch (_: Exception) {}
     }
 
     companion object {

@@ -17,6 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import com.xxmrk888ytxx.backgroundvideovoicerecord.presentation.volumeKey.VolumeKeyTriggerService
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,10 +53,15 @@ import com.xxmrk888ytxx.videoplayerscreen.VideoPlayerScreen
 import com.xxmrk888ytxx.videoplayerscreen.VideoPlayerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import com.xxmrk888ytxx.backgroundvideovoicerecord.domain.appLock.AppLockManager
+import com.xxmrk888ytxx.backgroundvideovoicerecord.presentation.appLock.AppLockScreen
 import javax.inject.Inject
 import javax.inject.Provider
 
-internal class MainActivity : ComponentActivity(), LockBlockerScreen {
+internal class MainActivity : androidx.fragment.app.FragmentActivity(), LockBlockerScreen {
+
+    @Inject
+    lateinit var appLockManager: AppLockManager
 
     @Inject
     lateinit var recordAudioViewModel: Provider<RecordAudioViewModel>
@@ -95,9 +105,27 @@ internal class MainActivity : ComponentActivity(), LockBlockerScreen {
                 initialValue = false
             )
 
+            val isAppLockEnabled by appLockManager.isAppLockEnabled.collectAsStateWithLifecycle(
+                initialValue = false
+            )
+            val isSessionUnlocked by appLockManager.isSessionUnlocked.collectAsStateWithLifecycle(
+                initialValue = false
+            )
+            val isBiometricEnabled by appLockManager.isBiometricEnabled.collectAsStateWithLifecycle(
+                initialValue = false
+            )
+
             LaunchedEffect(key1 = navController, block = {
                 activityViewModel.navController = navController
             })
+
+            LaunchedEffect(isAppLockEnabled, isSessionUnlocked) {
+                if (isAppLockEnabled) {
+                    window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                }
+            }
 
             Box(
                 modifier = Modifier.fillMaxSize().background(themeColors.background)
@@ -105,9 +133,7 @@ internal class MainActivity : ComponentActivity(), LockBlockerScreen {
                 NavHost(
                     navController = navController,
                     startDestination = Screen.MainScreen.route,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .systemBarsPadding()
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     composable(Screen.MainScreen.route) {
                         BottomBarScreen(
@@ -127,7 +153,8 @@ internal class MainActivity : ComponentActivity(), LockBlockerScreen {
                             modifier = Modifier.fillMaxSize(),
                             videoPlayerViewModel = composeViewModel() {
                                 videoPlayerViewModel.create(uri.toUri())
-                            }
+                            },
+                            onBackClick = activityViewModel::backScreen
                         )
                     }
 
@@ -144,6 +171,25 @@ internal class MainActivity : ComponentActivity(), LockBlockerScreen {
                         openTermsOfUseSite = activityViewModel::openTermsOfUse,
                         onConfirm = activityViewModel::hidePrivacyPolicyAndTermsOfUseDialog,
                         onCancel = this@MainActivity::finish
+                    )
+                }
+
+                if (isAppLockEnabled && !isSessionUnlocked) {
+                    AppLockScreen(
+                        isBiometricEnabled = isBiometricEnabled && appLockManager.canAuthenticateWithBiometrics(this@MainActivity),
+                        onVerifyPin = { pin ->
+                            val verified = appLockManager.verifyPinCode(pin)
+                            if (verified) {
+                                appLockManager.unlockSession()
+                            }
+                            verified
+                        },
+                        onUnlockSuccess = {
+                            appLockManager.unlockSession()
+                        },
+                        onTriggerBiometric = {
+                            showBiometricPrompt()
+                        }
                     )
                 }
             }
@@ -201,5 +247,57 @@ internal class MainActivity : ComponentActivity(), LockBlockerScreen {
 
     override fun cancel() {
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    private fun showBiometricPrompt() {
+        try {
+            val executor = androidx.core.content.ContextCompat.getMainExecutor(this)
+            val biometricPrompt = androidx.biometric.BiometricPrompt(
+                this,
+                executor,
+                object : androidx.biometric.BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: androidx.biometric.BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        appLockManager.unlockSession()
+                    }
+                }
+            )
+            val promptInfo = androidx.biometric.BiometricPrompt.PromptInfo.Builder()
+                .setTitle(getString(R.string.app_name))
+                .setSubtitle(getString(R.string.biometric_subtitle))
+                .setNegativeButtonText(getString(R.string.use_pin))
+                .build()
+
+            biometricPrompt.authenticate(promptInfo)
+        } catch (_: Exception) {}
+    }
+
+    override fun onStart() {
+        super.onStart()
+        checkVolumeKeyTriggerService()
+    }
+
+    private fun checkVolumeKeyTriggerService() {
+        lifecycleScope.launch(Dispatchers.Default) {
+            try {
+                val volumeKeyActionManager = appComponent.volumeKeyActionManager
+                if (volumeKeyActionManager.isTriggerEnabled.first() && volumeKeyActionManager.isAllPermissionsGranted()) {
+                    if (!VolumeKeyTriggerService.isRunning) {
+                        VolumeKeyTriggerService.start(this@MainActivity)
+                    }
+                    VolumeKeyTriggerService.scheduleWatchdog(this@MainActivity)
+                }
+            } catch (_: Exception) {}
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        appLockManager.lockSession()
+        lifecycleScope.launch {
+            if (appLockManager.isAppLockEnabled.first()) {
+                window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+            }
+        }
     }
 }

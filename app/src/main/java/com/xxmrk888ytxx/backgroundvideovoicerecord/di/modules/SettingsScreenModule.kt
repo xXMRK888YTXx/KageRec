@@ -47,4 +47,19 @@ interface SettingsScreenModule {
     fun bindOpenActivityContract(
         openActivityContractImpl: OpenActivityContractImpl
     ) : OpenActivityContract
+
+    @Binds
+    fun bindManageAppLockContract(
+        manageAppLockContractImpl: com.xxmrk888ytxx.backgroundvideovoicerecord.glue.SettingsScreen.ManageAppLockContractImpl
+    ): com.xxmrk888ytxx.settingsscreen.contracts.ManageAppLockContract
+
+    @Binds
+    fun bindManageQuickTileContract(
+        manageQuickTileContractImpl: com.xxmrk888ytxx.backgroundvideovoicerecord.glue.SettingsScreen.ManageQuickTileContractImpl
+    ): com.xxmrk888ytxx.settingsscreen.contracts.ManageQuickTileContract
+
+    @Binds
+    fun bindManageVolumeKeyTriggerContract(
+        manageVolumeKeyTriggerContractImpl: com.xxmrk888ytxx.backgroundvideovoicerecord.glue.SettingsScreen.ManageVolumeKeyTriggerContractImpl
+    ): com.xxmrk888ytxx.settingsscreen.contracts.ManageVolumeKeyTriggerContract
 }

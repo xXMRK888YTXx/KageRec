@@ -2,6 +2,8 @@ package com.xxmrk888ytxx.settingsscreen
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.xxmrk888ytxx.coreandroid.Navigator
@@ -29,6 +31,21 @@ internal fun cameraParams(settingsViewModel: SettingsViewModel): ImmutableList<S
             text = stringResource(R.string.Camera_rotation),
             icon = R.drawable.rotation,
             onClick = settingsViewModel::showCameraRotationSelectDialogState
+        ),
+        SettingsParamType.Button(
+            text = stringResource(R.string.dual_camera_primary),
+            icon = R.drawable.camera_type,
+            onClick = settingsViewModel::showDualCameraPrimarySelectDialogState
+        ),
+        SettingsParamType.Button(
+            text = stringResource(R.string.dual_camera_pip_position),
+            icon = R.drawable.rotation,
+            onClick = settingsViewModel::showPipPositionSelectDialogState
+        ),
+        SettingsParamType.Button(
+            text = stringResource(R.string.video_split_limit_setting),
+            icon = R.drawable.camera_type,
+            onClick = settingsViewModel::showVideoSplitLimitSelectDialog
         )
     )
 }
@@ -36,8 +53,11 @@ internal fun cameraParams(settingsViewModel: SettingsViewModel): ImmutableList<S
 @SuppressLint("ResourceType")
 @Composable
 internal fun notificationParams(settingsViewModel: SettingsViewModel): ImmutableList<SettingsParamType> {
+    val quickTileAction by settingsViewModel.quickTileAction.collectAsState(initial = com.xxmrk888ytxx.coreandroid.models.QuickTileAction.OPEN_APP)
 
-    return persistentListOf(
+    val list = persistentListOf<SettingsParamType>().builder()
+
+    list.add(
         SettingsParamType.Button(
             text = stringResource(R.string.Notification_audio_params),
             icon = R.drawable.baseline_edit_notifications_24,
@@ -48,7 +68,10 @@ internal fun notificationParams(settingsViewModel: SettingsViewModel): Immutable
                     )
                 }
             }
-        ),
+        )
+    )
+
+    list.add(
         SettingsParamType.Button(
             text = stringResource(R.string.Notification_video_params),
             icon = R.drawable.baseline_edit_notifications_24,
@@ -61,6 +84,26 @@ internal fun notificationParams(settingsViewModel: SettingsViewModel): Immutable
             }
         )
     )
+
+    list.add(
+        SettingsParamType.Button(
+            text = stringResource(R.string.quick_tile_action_setting),
+            icon = R.drawable.baseline_edit_notifications_24,
+            onClick = settingsViewModel::showQuickTileActionSelectDialog
+        )
+    )
+
+    if (quickTileAction == com.xxmrk888ytxx.coreandroid.models.QuickTileAction.START_VIDEO_RECORD) {
+        list.add(
+            SettingsParamType.Button(
+                text = stringResource(R.string.quick_tile_camera_setting),
+                icon = R.drawable.camera_type,
+                onClick = settingsViewModel::showQuickTileCameraSelectDialog
+            )
+        )
+    }
+
+    return list.build()
 }
 
 @SuppressLint("ResourceType")
@@ -117,3 +160,104 @@ internal fun autoExportToExternalStorageParams(
         ),
     )
 }
+
+@SuppressLint("ResourceType")
+@Composable
+internal fun securityParams(
+    settingsViewModel: SettingsViewModel
+): ImmutableList<SettingsParamType> {
+    val isAppLockEnabled by settingsViewModel.isAppLockEnabled.collectAsState(initial = false)
+    val isBiometricEnabled by settingsViewModel.isBiometricEnabled.collectAsState(initial = false)
+
+    val list = persistentListOf<SettingsParamType>().builder()
+
+    list.add(
+        SettingsParamType.Switch(
+            text = stringResource(R.string.app_lock_pin),
+            icon = R.drawable.ic_lock,
+            isSwitched = isAppLockEnabled,
+            onStateChanged = settingsViewModel::onAppLockSwitchChanged
+        )
+    )
+
+    if (isAppLockEnabled) {
+        list.add(
+            SettingsParamType.Button(
+                text = stringResource(R.string.change_pin_code),
+                icon = R.drawable.ic_lock,
+                onClick = { settingsViewModel.showSetPinDialog(isChangeMode = true) }
+            )
+        )
+
+        if (settingsViewModel.isBiometricsSupported) {
+            list.add(
+                SettingsParamType.Switch(
+                    text = stringResource(R.string.unlock_with_fingerprint),
+                    icon = R.drawable.ic_fingerprint,
+                    isSwitched = isBiometricEnabled,
+                    onStateChanged = settingsViewModel::onBiometricSwitchChanged
+                )
+            )
+        }
+    }
+
+    return list.build()
+}
+
+@SuppressLint("ResourceType")
+@Composable
+internal fun volumeKeyTriggerParams(
+    settingsViewModel: SettingsViewModel
+): ImmutableList<SettingsParamType> {
+    val isEnabled by settingsViewModel.isVolumeKeyTriggerEnabled.collectAsState(initial = false)
+    val volumeKeyAction by settingsViewModel.volumeKeyAction.collectAsState(initial = com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction.START_VIDEO_RECORD)
+
+    val list = persistentListOf<SettingsParamType>().builder()
+
+    list.add(
+        SettingsParamType.Switch(
+            text = stringResource(R.string.volume_key_trigger_switch),
+            icon = R.drawable.baseline_edit_notifications_24,
+            isSwitched = isEnabled,
+            onStateChanged = settingsViewModel::onVolumeKeyTriggerSwitchChanged
+        )
+    )
+
+    if (isEnabled) {
+        list.add(
+            SettingsParamType.Button(
+                text = stringResource(R.string.volume_key_trigger_button_setting),
+                icon = R.drawable.baseline_edit_notifications_24,
+                onClick = settingsViewModel::showVolumeKeyButtonSelectDialog
+            )
+        )
+
+        list.add(
+            SettingsParamType.Button(
+                text = stringResource(R.string.volume_key_trigger_action_setting),
+                icon = R.drawable.baseline_edit_notifications_24,
+                onClick = settingsViewModel::showVolumeKeyActionSelectDialog
+            )
+        )
+
+        if (volumeKeyAction == com.xxmrk888ytxx.coreandroid.models.VolumeKeyAction.START_VIDEO_RECORD) {
+            list.add(
+                SettingsParamType.Button(
+                    text = stringResource(R.string.volume_key_trigger_camera_setting),
+                    icon = R.drawable.camera_type,
+                    onClick = settingsViewModel::showVolumeKeyCameraSelectDialog
+                )
+            )
+        }
+    }
+
+    list.add(
+        SettingsParamType.Button(
+            text = stringResource(R.string.volume_key_instructions_button),
+            icon = R.drawable.info,
+            onClick = settingsViewModel::showAdbPermissionDialog
+        )
+    )
+
+    return list.build()
+}
