@@ -1,17 +1,15 @@
 <p align="center">
-  <img src="assets/logo.png" width="128" height="128" alt="Background Video & Audio Record Logo" />
+  <img src="assets/logo.png" width="128" height="128" alt="KageRec Logo" />
 </p>
 
-<h1 align="center">✨ Background Video & Audio Record ✨</h1>
-<h3 align="center">🔮 Кодовое имя: <em>Faraday</em> (v1.2.0r — Stealth & Reliability) 🪄</h3>
+<h1 align="center">✨ KageRec ✨</h1>
 
 <p align="center">
-  <b>Скрытая, надежная и высокопроизводительная фоновая запись видео и аудио для Android с аппаратной поддержкой двух камер</b><br>
-  <i>Stealthy, reliable, and high-performance background video and audio recording for Android with hardware dual-camera support</i>
+  <b>Stealthy, reliable, and high-performance background video and audio recording for Android with hardware dual-camera support</b><br>
+  <i>Скрытая, надежная и высокопроизводительная фоновая запись видео и аудио для Android с аппаратной поддержкой двух камер</i>
 </p>
 
 <p align="center">
-  <a href="https://github.com/KoksMen/Background_Video_Audio_Record/releases"><img src="https://img.shields.io/badge/Version-v1.2.0r--Faraday-7c4dff?style=for-the-badge&logo=github&logoColor=white" alt="Version v1.2.0r-Faraday" /></a>
   <img src="https://img.shields.io/badge/Kotlin-2.2-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin 2.2" />
   <img src="https://img.shields.io/badge/Compose-Material%203%20Expressive-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Compose Material 3 Expressive" />
   <img src="https://img.shields.io/badge/Platform-Android%208.0%2B%20(API%2026%E2%80%9336)-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 8.0+" />
@@ -19,13 +17,14 @@
 </p>
 
 <p align="center">
-  <a href="#-background-video--audio-record-на-русском"><b>🇷🇺 Перейти к русской версии</b></a> •
-  <a href="#-background-video--audio-record-in-english"><b>🇬🇧 Switch to English Version</b></a>
+  <a href="#-screenshots--скриншоты"><b>📱 Screenshots / Скриншоты</b></a> •
+  <a href="#-kagerec-in-english"><b>🇬🇧 English Version</b></a> •
+  <a href="#-kagerec-на-русском"><b>🇷🇺 Перейти к русской версии</b></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/KoksMen/Background_Video_Audio_Record/releases/latest">
-    <img src="https://img.shields.io/badge/Скачать%20APK-Download%20APK-4CAF50?style=for-the-badge&logo=android&logoColor=white" alt="Download APK" />
+    <img src="https://img.shields.io/badge/Download%20APK-Скачать%20APK-4CAF50?style=for-the-badge&logo=android&logoColor=white" alt="Download APK" />
   </a>
   <a href="https://github.com/KoksMen/Background_Video_Audio_Record/releases">
     <img src="https://img.shields.io/badge/GitHub-Releases-181717?style=for-the-badge&logo=github&logoColor=white" alt="Releases" />
@@ -37,11 +36,140 @@
 
 ---
 
-# 🇷🇺 Background Video & Audio Record (На русском)
+<h2 align="center">📱 Screenshots / Скриншоты</h2>
+
+<p align="center">
+  <img src="assets/screenshots/video_recording.jpg" width="32%" alt="Background Video Recording" />
+  <img src="assets/screenshots/dual_camera.jpg" width="32%" alt="Dual Camera PiP Recording" />
+  <img src="assets/screenshots/audio_recording.jpg" width="32%" alt="Audio Recording" />
+</p>
+<p align="center">
+  <img src="assets/screenshots/export_options.jpg" width="32%" alt="Export & Save Options" />
+  <img src="assets/screenshots/storage.jpg" width="32%" alt="Storage Management" />
+  <img src="assets/screenshots/settings.jpg" width="32%" alt="Settings & Customization" />
+</p>
+
+---
+
+# 🇬🇧 KageRec (In English)
+
+## 💡 About The Project
+
+**KageRec** is a professional Android application designed for covert, continuous, and highly stable background video and audio recording.
+
+The application captures high-definition video even when the screen is locked/turned off, when multitasking between other apps, or during mobile gaming. With stealth notification masking, PIN and biometric security, hardware button triggers, intelligent audio focus management during phone calls, and hardware-accelerated dual-camera stitching, this tool provides an essential utility for documenting events and personal security. 🚀
+
+> [!TIP]
+> The app is completely offline and telemetry-free. All media files are stored locally in secure internal storage with an optional export to the public gallery.
+
+---
+
+## 🌟 Key Features
+
+### 🎥 1. Stealth Background Video & Audio Capture
+- **Screen-Off Operation:** Continuous high-definition video and uncompressed audio capture while the screen is turned off or while multitasking in other apps.
+- **Hardware Button Triggers:** Fast and discreet recording launch using physical volume buttons without waking up the screen.
+- **Versatile Capture Modes:** Rear camera, front camera, simultaneous Dual-Camera (PiP), or standalone uncompressed WAV audio recording.
+
+### 🛡️ 2. App Lock Screen Protection (`FLAG_SECURE`)
+- **Dynamic `FLAG_SECURE`:** When App Lock is active, secure window flags prevent screenshots and screen capture by third-party apps.
+- **Recent Apps Masking:** When minimized (`onStop`), the app task thumbnail in Android's recent apps switcher is masked with a protected black screen.
+
+### 🔋 3. Uninterrupted Recording with `PARTIAL_WAKE_LOCK`
+- **Doze Mode Continuity:** `RecordVideoService` and `AudioRecordService` maintain a `PowerManager.WakeLock` with a 6-hour safety timeout.
+- **Smooth Capture:** Prevents CPU sleep while the screen is locked, eliminating audio stuttering and dropped frames. Released cleanly on pause, stop, or service destroy.
+
+### 💾 4. Dynamic Disk Space Guard (`freeSpace` / `StatFs`)
+- **Pre-flight Checks:** Recording aborts with a clear notification if available storage is less than 200 MB for video or 50 MB for audio.
+- **Active Recording Guard:** If storage falls below critical levels (100 MB for video, 20 MB for audio) during recording, the service gracefully finalizes the MP4/AMR container to prevent file corruption.
+
+### 📞 5. Intelligent Call & Audio Focus Handling
+- **Audio Focus Listener (`AudioManager.OnAudioFocusChangeListener`):** Recording automatically pauses when a cellular or VoIP call (Telegram, WhatsApp) begins, preventing microphone conflicts.
+- **Automatic Resume:** Background recording seamlessly resumes once the call is concluded without data loss.
+
+### 🎬 6. Built-in Video Player (`VideoPlayerScreen`)
+- **Material 3 Overlay:** Semi-transparent gradient top bar with edge-to-edge support (`statusBarsPadding`).
+- **One-Tap Back Navigation:** Quick return to the storage library.
+- **File Metadata:** Clear display of active video filename.
+- **Instant Sharing:** Direct export to Telegram, WhatsApp, or cloud services (`Intent.ACTION_SEND`).
+- **Tap-to-Toggle:** Player controls fade smoothly on tap.
+
+### 🔐 7. App Lock & Biometrics
+- **Cryptographically Salted PIN:** Stored as a **SHA-256** hash in `DataStore Preferences`.
+- **Biometric Authentication (BiometricPrompt):** Instant unlock using fingerprint or facial recognition.
+- **Animated Lock Screen:** Pin-pad with brute-force feedback (shake animation and red error indicator).
+
+### 📸 8. Hardware-Accelerated Dual Video Recording
+- **Concurrent Camera Capture:** Simultaneous recording from primary rear and front lenses.
+- **Hardware Encoding (`DualVideoCombiner`):** Direct hardware codec selection (`c2.qti`, `c2.exynos`, `c2.mtk`, `omx`) via `MediaCodecList` with VBR mode. Delivers 3–5x faster stitching with minimal thermal footprint.
+- **Custom PiP Layouts:** Customizable primary camera assignment and picture-in-picture window placement.
+
+### ⏳ 9. Automatic Video Chunk Splitting
+- **FAT32 & SD Card Safe:** **4 GB / 30-minute** limits prevent file corruption when saving to external SD cards.
+- **Seamless Rotation (`rotateChunk`):** Rotates chunks continuously without interrupting the service or resetting recording timers.
+
+### 🎛️ 10. Quick Settings Tile
+- **Status Bar Quick Tile:** Start and stop stealth recording directly from the Android Quick Settings shade with bidirectional status sync.
+
+### 🔔 11. Notification Cloaking & OEM Compatibility
+- **Disguised Channels:** Masquerades persistent notifications and icons as generic system utilities.
+- **OEM Cache Workarounds:** Eliminates notification icon caching issues across Xiaomi MIUI/HyperOS, Samsung OneUI, Huawei EMUI, and BBK (ColorOS).
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technologies |
+| :--- | :--- |
+| **Language** | Kotlin 2.2 (KSP 2.2, Coroutines 1.10, Flows, Channels) |
+| **UI Framework** | Jetpack Compose, Material 3 Expressive, Navigation Compose |
+| **Camera & Media** | CameraX 1.5 (VideoCapture, ConcurrentCamera), MediaCodec, MediaRecorder, ExoPlayer 1.8 |
+| **Architecture** | Multi-Module Clean Architecture, MVVM + MVI-like StateFlows |
+| **Dependency Injection** | Dagger 2 |
+| **Local Storage** | Room Database (KSP), DataStore Preferences |
+| **Security** | AndroidX Biometric, WindowManager FLAG_SECURE, SHA-256 Key Salting |
+| **System Services** | Foreground Service, SensorManager, AudioFocus, Quick Settings Tile |
+
+---
+
+## 📁 Modular Architecture
+
+```text
+├── app/                              # Main application module, Dagger DI, AppLock, MainActivity
+├── CoreAndroid/                      # Base utilities, NotificationHelper, context extensions
+├── CoreCompose/                      # Common Compose components, design system, themes
+├── RecordVideoScreen/                # Video recording control screen and viewfinder
+├── RecordAudioScreen/                # Audio recording control screen
+├── RecordVideoService/               # Background Foreground Service for video with CameraX, WakeLock, AudioFocus
+├── AudioRecordService/               # Background Foreground Service for audio, WakeLock, AudioFocus
+├── VideoRecorder/                    # CameraX VideoCapture and Recorder API wrapper
+├── CameraPreviewCompose/             # Camera preview Composable widget (including PiP)
+├── FastOpenAppQuickSettingsService/  # Quick Settings Tile service for notification shade
+├── StorageScreen/                    # Saved recordings manager screen (Material 3 cards)
+├── VideoPlayerScreen/                # Built-in video player with Material 3 overlay and Share action
+├── AudioPlayer/                      # Audio playback controller and service
+├── SettingsScreen/                   # App settings, biometrics, hardware triggers, and video chunking
+├── PreferencesStorage/               # Settings persistence powered by Jetpack DataStore
+└── AutoExportToExternalStorageScreen/# Automatic export module for shared storage
+```
+
+---
+
+## 🚀 Installation & Requirements
+
+- **Minimum Version:** Android 8.0 (API Level 26)
+- **Target Version:** Android 15 / 16 (API Level 36)
+- **Hardware Requirements:** Camera & microphone. Dual Video recording requires device `FEATURE_CAMERA_CONCURRENT` support.
+
+[**⬇️ Download Official APK (GitHub Releases)**](https://github.com/KoksMen/Background_Video_Audio_Record/releases/latest)
+
+---
+
+# 🇷🇺 KageRec (На русском)
 
 ## 💡 О проекте
 
-**Background Video & Audio Record** — это профессиональное мобильное приложение для Android, спроектированное для скрытой, непрерывной и стабильной видео- и аудиозаписи в фоновом режиме.
+**KageRec** — это профессиональное мобильное приложение для Android, спроектированное для скрытой, непрерывной и стабильной видео- и аудиозаписи в фоновом режиме.
 
 Приложение способно продолжать высококачественную запись даже при выключенном или заблокированном экране смартфона, при переключении между другими приложениями или во время игр. Развитая система маскировки уведомлений, защита PIN-кодом с биометрией, аппаратный запуск без включения экрана, контроль аудиофокуса звонков и аппаратная поддержка склейки двух камер делают приложение надежным инструментом для фиксации важных событий и обеспечения личной безопасности. 🚀
 
@@ -52,6 +180,10 @@
 
 ## 🌟 Ключевые возможности и функционал системы
 
+### 🎥 1. Скрытая фоновая запись видео и аудио
+- **Съемка при выключенном экране:** Непрерывная видео- и аудиозапись при заблокированном смартфоне или во время работы с любыми другими приложениями.
+- **Аппаратные триггеры быстрого старта:** Незаметный запуск и остановка записи по нажатию аппаратных кнопок громкости устройства без включения дисплея.
+- **Широкий выбор режимов:** Запись основной (тыловой) камеры, фронтальной камеры, одновременный режим Dual Camera или изолированная запись звука в WAV.
 
 ### 🛡️ 2. Безопасность экрана и защита Recent Apps (`FLAG_SECURE`)
 - **Динамический `FLAG_SECURE`:** При активном App Lock окну приложения выставляется флаг безопасности, предотвращающий создание скриншотов или запись экрана посторонними приложениями.
@@ -77,7 +209,7 @@
 - **Скрытие по тапу:** Оверлей плавно скрывается и появляется при нажатии на видео.
 
 ### 🔐 7. Защита приложения и биометрия (App Lock)
-- **PIN-код с криптографическим солением:** Хранение хеша по алгоритму **SHA-256** с индивидуальной солью (`FaradaySec_2026_Salt`) в `DataStore Preferences`.
+- **PIN-код с криптографическим солением:** Хранение хеша по алгоритму **SHA-256** с солью в `DataStore Preferences`.
 - **Биометрическая аутентификация (BiometricPrompt):** Мгновенная разблокировка по отпечатку пальца или распознаванию лица.
 - **Анимированный экран блокировки:** Точки ввода с защитой от перебора (shake-анимация и красная индикация при ошибке).
 
@@ -147,47 +279,6 @@
 
 ---
 
-# 🇬🇧 Background Video & Audio Record (In English)
-
-## 💡 About The Project
-
-**Background Video & Audio Record** is an advanced open-source Android application engineered for stealthy, reliable, and uninterrupted background video and voice recording.
-
-Featuring customized notification cloaking, biometric app security (PIN + Fingerprint), hardware-accelerated dual-camera picture-in-picture recording, audio focus call management, and low-storage guards, this tool is ideal for documenting crucial moments and ensuring personal security.
-
----
-
-## 🌟 Key Features
-
-### 🛡️ 2. App Lock Screen Protection (`FLAG_SECURE`)
-- Blocks screenshots and obscures recent app task snapshots with a protected black screen when App Lock is active.
-
-### 🔋 3. Uninterrupted Recording with `PARTIAL_WAKE_LOCK`
-- Prevents CPU sleep in Android Doze mode when the screen is locked, ensuring seamless 60/30fps capture without dropped frames.
-
-### 💾 4. Dynamic Disk Space Guard (`freeSpace` / `StatFs`)
-- Pre-flight check (<200MB video / <50MB audio) and active recording safety threshold (<100MB video / <20MB audio) ensures MP4/AMR containers are properly finalized without corrupting files.
-
-### 📞 5. Intelligent Call & Audio Focus Handling
-- Automatically pauses recording when a phone or messenger call begins, and seamlessly resumes when the call ends.
-
-### 🎬 6. Enhanced Video Player Screen (`VideoPlayerScreen`)
-- Material 3 top bar with edge-to-edge status bar insets, one-tap Back navigation, video filename display, and instant Share action.
-
-### 🔐 7. App Lock & Biometrics
-- Salted SHA-256 PIN code, fingerprint and face authentication via AndroidX `BiometricPrompt`.
-
-### 📸 8. Hardware-Accelerated Dual Video Recording
-- Concurrent Camera recording with `MediaCodec` hardware acceleration (AVC/HEVC) for fast, cool PiP encoding.
-
-### ⏳ 9. Automatic Video Chunk Splitting
-- FAT32-safe **4 GB / 30-minute** limits with seamless `rotateChunk` rotation.
-
-### 🎛️ 10. Quick Settings Tile
-- One-tap toggle directly from the Android notification quick settings shade.
-
----
-
-## 📄 License
+## 📄 License / Лицензия
 
 This project is distributed under the **GNU General Public License v3.0 (GPL-3.0)**. See [LICENSE](LICENSE) for details.
